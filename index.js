@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const data = JSON.parse(fs.readFileSync("./patientData.json", "utf8"));
+const data = [];
 
 for(let i = 0; i < 1000; i ++){
     const patient = {
@@ -34,8 +34,8 @@ for(let i = 0; i < 1000; i ++){
         Weight: 180
     }
 
-    data.push(JSON.stringify(patient));
-    fs.writeFileSync("./patientData.json", data);
+    data.push(patient);
+    fs.writeFileSync("./patientData.json", JSON.stringify(data, null, 4));
 }
 
 
