@@ -1,0 +1,23 @@
+{
+  "name": "docs-fle",
+  "version": "1.0.0",
+  "description": "various random files related to fle docs tickets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mongomoe/docs-fle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mongomoe/docs-fle/issues"
+  },
+  "homepage": "https://github.com/mongomoe/docs-fle#readme",
+  "dependencies": {
+    "faker": "^4.1.0"
+  }
+}
