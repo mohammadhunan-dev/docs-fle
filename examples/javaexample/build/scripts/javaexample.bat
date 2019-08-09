@@ -82,7 +82,7 @@ set CMD_LINE_ARGS=%*
 set CLASSPATH=%APP_HOME%\lib\javaexample-0.0.1-SNAPSHOT.jar;%APP_HOME%\lib\mongodb-driver-sync-3.11.0-SNAPSHOT.jar;%APP_HOME%\lib\mongodb-crypt-1.0.0-beta4.jar;%APP_HOME%\lib\mongodb-driver-core-3.11.0-SNAPSHOT.jar;%APP_HOME%\lib\bson-3.11.0-SNAPSHOT.jar;%APP_HOME%\lib\jna-4.5.2.jar;%APP_HOME%\lib\slf4j-api-1.7.6.jar
 
 @rem Execute javaexample
-"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %JAVAEXAMPLE_OPTS%  -classpath "%CLASSPATH%" com.example.demo.DemoApplication %CMD_LINE_ARGS%
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %JAVAEXAMPLE_OPTS%  -classpath "%CLASSPATH%" main.java.com.example.fle.FleApplication; %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell

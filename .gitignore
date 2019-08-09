@@ -1,1 +1,5 @@
 /node_modules/
+/examples/javaexample/.gradle/
+/examples/javaexample/gradle/
+/examples/javaexample/build
+env.json

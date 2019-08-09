@@ -1,4 +1,4 @@
-package main.java.com.example.fle;
+package com.example.fle;
 
 
 import com.mongodb.*;
@@ -17,5 +17,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class FleApplication {
+	public static void main(String[] args) {
 
+	}
 }

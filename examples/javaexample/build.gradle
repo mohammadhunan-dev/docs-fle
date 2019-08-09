@@ -11,7 +11,8 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
-mainClassName = 'com.example.demo.DemoApplication' 
+// mainClassName = 'com.example.demo.DemoApplication' 
+mainClassName = 'com.example.fle.FleApplication;' 
 
 repositories {
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
