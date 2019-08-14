@@ -2,4 +2,9 @@
 /examples/javaexample/.gradle/
 /examples/javaexample/gradle/
 /examples/javaexample/build
+
 env.json
+
+
+examples/javaexample/.gradle
+examples/javaexample/build

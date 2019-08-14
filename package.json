@@ -19,6 +19,7 @@
   "homepage": "https://github.com/mongomoe/docs-fle#readme",
   "dependencies": {
     "cryptr": "^4.0.2",
-    "faker": "^4.1.0"
+    "faker": "^4.1.0",
+    "jsonschema": "^1.2.4"
   }
 }

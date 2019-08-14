@@ -12,7 +12,9 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 // mainClassName = 'com.example.demo.DemoApplication' 
-mainClassName = 'com.example.fle.FleApplication;' 
+// mainClassName = 'com.example.demo.DemoApplication' 
+
+mainClassName = 'com.example.fle.FleApplication' 
 
 repositories {
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
@@ -25,6 +27,8 @@ dependencies {
 
 		compile 'org.mongodb:mongodb-driver-sync:3.11.0-SNAPSHOT'
 		compile 'org.mongodb:mongodb-crypt:1.0.0-beta4'
+		compile 'org.json:json:20171018'
+		
 		// compile 'org.mongodb:mongodb-crypt:1.0.0-SNAPSHOT'
 }
 
