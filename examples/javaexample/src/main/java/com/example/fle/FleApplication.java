@@ -4,6 +4,7 @@ package com.example.fle;
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.vault.DataKeyOptions;
 import com.mongodb.client.vault.ClientEncryption;
 import com.mongodb.client.vault.ClientEncryptions;
@@ -26,78 +27,24 @@ public class FleApplication {
 
 	public static void main(String[] args) {
 
-		var encryptedClient = createSecureClient();
-		var secureCollection = encryptedClient.getDatabase(dbName).getCollection(collName);
+		MongoCollection secureCollection = createSecureClient().getDatabase(dbName).getCollection(collName);
 		secureCollection.drop();
-
-		// {
-		// 	"address": {
-		// 		"encrypt": {
-		// 			"algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-		// 			"bsonType": "string",
-		// 			"keyId": [
-		// 				{
-		// 					"$binary": {
-		// 						"base64": "y6tsV2FxRvKCNjUjnMDgiw==",
-		// 						"subType": "04"
-		// 					}
-		// 				}
-		// 			]
-		// 		}
-		// 	},
-		// 	"appointments": {
-		// 		"bsonType": "array",
-		// 		"items": {
-		// 			"bsonType": "object",
-		// 			"properties": {
-		// 				"appointmentDescription": {
-		// 					"bsonType": "string",
-		// 					"description": "must be a string and is required"
-		// 				},
-		// 				"date": {
-		// 					"bsonType": "date",
-		// 					"description": "must be a date and is required"
-		// 				}
-		// 			},
-		// 			"required": [
-		// 				"date",
-		// 				"appointmentDescription"
-		// 			]
-		// 		}
-		// 	},
-
-
-
-
 
 		// insert one object:
 		Document obj1 = new Document();
 		obj1.put("address", "300 golden road");
-		obj1.put("fullName", "john doe");
+		obj1.put("fullName", "jane doe");
 		obj1.put("last4SSN", 3333);
 		obj1.put("ssn", 777553333);
 		obj1.put("telephone",718981444);
-		
-// 		List<String> topics = new ArrayList<String>();
-// topics.add("Business");
-// topics.add("Technology");
-// topics.add("Sports");
-// topics.add("Career");
-
 		Document apptForObj1 = new Document();
 		apptForObj1.put("appointmentDescription", "headaches and migraines");
 		apptForObj1.put("date", new Date());
-
 		obj1.append("appointments", apptForObj1);
 
-
-		// obj1.put("encryptedField", "44-11-1111");
-		// obj1.put("standardField", "monglue");
 		secureCollection.insertOne(obj1);
 	}
 
-
-	
 	public static JSONObject makeEncryptedFieldJSON(String keyId, String chosenBsonType){
 		JSONObject binaryForKey = new JSONObject();
 		binaryForKey.put("base64", keyId);
@@ -131,22 +78,13 @@ public class FleApplication {
 		// create fields
 		// make nested appts
 		JSONObject appointments = new JSONObject();
-
-			// appointments.bsonType:
 			appointments.put("bsonType", "array");
-
-			// appointments.items: 
-			// JSONArray required = new JSONArray();
-			// required.put("date");
-			// required.put("appointmentDescription");
-
 			JSONObject appointmentProperties = new JSONObject();
 			appointmentProperties.put("date", makeStandardFieldJSON("date"));
 			appointmentProperties.put("appointmentDescription",  makeStandardFieldJSON("string"));
 
 			JSONObject itemsSubObject = new JSONObject();
 			itemsSubObject.put("bsonType", "object");
-			// itemsSubObject.put("required", required);
 			itemsSubObject.put("properties", appointmentProperties);
 
 			appointments.put("items", itemsSubObject);
@@ -160,29 +98,6 @@ public class FleApplication {
 		properties.put("ssn", makeEncryptedFieldJSON(keyId, "int"));
 		properties.put("last4SSN", makeStandardFieldJSON("int"));
 		properties.put("appointments", appointments); 
-
-		// System.out.println(properties.toString());
-		// properties.put("standardField", standardField);
-		// properties.put("encryptedField", encryptedField);
-
-
-		JSONObject patientsSchema = new JSONObject();
-		patientsSchema.put("properties", properties);
-		patientsSchema.put("bsonType", "object");
-		String patientsSchemaAsString = patientsSchema.toString();
-		return patientsSchemaAsString;
-	}
-
-	public static String getSchemaJSON(String keyId){
-		JSONObject encryptedField = makeEncryptedFieldJSON(keyId, "string");
-		JSONObject standardField = makeStandardFieldJSON("string");
-		
-
-
-		JSONObject properties = new JSONObject();
-		properties.put("standardField", standardField);
-		properties.put("encryptedField", encryptedField);
-
 
 		JSONObject patientsSchema = new JSONObject();
 		patientsSchema.put("properties", properties);
