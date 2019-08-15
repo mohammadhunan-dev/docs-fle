@@ -89,7 +89,6 @@ public class FleApplication {
 
 			appointments.put("items", itemsSubObject);
 
-
 		// put fields in properties
 		JSONObject properties = new JSONObject();
 		properties.put("fullName", makeStandardFieldJSON("string"));
@@ -98,6 +97,8 @@ public class FleApplication {
 		properties.put("ssn", makeEncryptedFieldJSON(keyId, "int"));
 		properties.put("last4SSN", makeStandardFieldJSON("int"));
 		properties.put("appointments", appointments); 
+
+		System.out.println(properties.toString());
 
 		JSONObject patientsSchema = new JSONObject();
 		patientsSchema.put("properties", properties);
