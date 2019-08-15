@@ -1,0 +1,72 @@
+{
+    "address": {
+        "encrypt": {
+            "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+            "bsonType": "string",
+            "keyId": [
+                {
+                    "$binary": {
+                        "base64": "y6tsV2FxRvKCNjUjnMDgiw==",
+                        "subType": "04"
+                    }
+                }
+            ]
+        }
+    },
+    "appointments": {
+        "bsonType": "array",
+        "items": {
+            "bsonType": "object",
+            "properties": {
+                "appointmentDescription": {
+                    "bsonType": "string",
+                    "description": "must be a string and is required"
+                },
+                "date": {
+                    "bsonType": "date",
+                    "description": "must be a date and is required"
+                }
+            },
+            "required": [
+                "date",
+                "appointmentDescription"
+            ]
+        }
+    },
+    "fullName": {
+        "bsonType": "string",
+        "description": "must be a string and is required"
+    },
+    "last4SSN": {
+        "bsonType": "int",
+        "description": "must be a int and is required"
+    },
+    "ssn": {
+        "encrypt": {
+            "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+            "bsonType": "int",
+            "keyId": [
+                {
+                    "$binary": {
+                        "base64": "y6tsV2FxRvKCNjUjnMDgiw==",
+                        "subType": "04"
+                    }
+                }
+            ]
+        }
+    },
+    "telephone": {
+        "encrypt": {
+            "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+            "bsonType": "int",
+            "keyId": [
+                {
+                    "$binary": {
+                        "base64": "y6tsV2FxRvKCNjUjnMDgiw==",
+                        "subType": "04"
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -2,9 +2,9 @@
 /examples/javaexample/.gradle/
 /examples/javaexample/gradle/
 /examples/javaexample/build
+/examples/javaexample/.vscode
+/examples/javaexample/.settings
+/examples/javaexample/bin
+
 
 env.json
-
-
-examples/javaexample/.gradle
-examples/javaexample/build

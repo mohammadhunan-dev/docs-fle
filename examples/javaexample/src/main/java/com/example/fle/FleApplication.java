@@ -8,11 +8,13 @@ import com.mongodb.client.model.vault.DataKeyOptions;
 import com.mongodb.client.vault.ClientEncryption;
 import com.mongodb.client.vault.ClientEncryptions;
 import com.mongodb.internal.HexUtils;
+
 import org.bson.BsonDocument;
 import org.bson.Document;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -27,18 +29,76 @@ public class FleApplication {
 		var encryptedClient = createSecureClient();
 		var secureCollection = encryptedClient.getDatabase(dbName).getCollection(collName);
 		secureCollection.drop();
-		// secureCollection.insertOne(new Document("encryptedField", "123456789"));
-		// secureCollection.insertOne(new Document("encryptedField", "hello world"));
-		// secureCollection.insertOne(new Document("encryptedField", "foobar"));
-		// secureCollection.insertOne(new Document("encryptedField", "fizzbuzz"));
 
+		// {
+		// 	"address": {
+		// 		"encrypt": {
+		// 			"algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+		// 			"bsonType": "string",
+		// 			"keyId": [
+		// 				{
+		// 					"$binary": {
+		// 						"base64": "y6tsV2FxRvKCNjUjnMDgiw==",
+		// 						"subType": "04"
+		// 					}
+		// 				}
+		// 			]
+		// 		}
+		// 	},
+		// 	"appointments": {
+		// 		"bsonType": "array",
+		// 		"items": {
+		// 			"bsonType": "object",
+		// 			"properties": {
+		// 				"appointmentDescription": {
+		// 					"bsonType": "string",
+		// 					"description": "must be a string and is required"
+		// 				},
+		// 				"date": {
+		// 					"bsonType": "date",
+		// 					"description": "must be a date and is required"
+		// 				}
+		// 			},
+		// 			"required": [
+		// 				"date",
+		// 				"appointmentDescription"
+		// 			]
+		// 		}
+		// 	},
+
+
+
+
+
+		// insert one object:
 		Document obj1 = new Document();
-		obj1.put("encryptedField", "44-11-1111");
-		obj1.put("standardField", "Nintendo Switch");
+		obj1.put("address", "300 golden road");
+		obj1.put("fullName", "john doe");
+		obj1.put("last4SSN", 3333);
+		obj1.put("ssn", 777553333);
+		obj1.put("telephone",718981444);
+		
+// 		List<String> topics = new ArrayList<String>();
+// topics.add("Business");
+// topics.add("Technology");
+// topics.add("Sports");
+// topics.add("Career");
 
+		Document apptForObj1 = new Document();
+		apptForObj1.put("appointmentDescription", "headaches and migraines");
+		apptForObj1.put("date", new Date());
+
+		obj1.append("appointments", apptForObj1);
+
+
+		// obj1.put("encryptedField", "44-11-1111");
+		// obj1.put("standardField", "monglue");
 		secureCollection.insertOne(obj1);
 	}
-	public static JSONObject makeEncryptedFieldJSON(String keyId){
+
+
+	
+	public static JSONObject makeEncryptedFieldJSON(String keyId, String chosenBsonType){
 		JSONObject binaryForKey = new JSONObject();
 		binaryForKey.put("base64", keyId);
 		binaryForKey.put("subType", "04");
@@ -50,7 +110,7 @@ public class FleApplication {
 
 		JSONObject encrypt = new JSONObject();
 
-		encrypt.put("bsonType", "string");
+		encrypt.put("bsonType", chosenBsonType);
 		encrypt.put("algorithm", "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic");
 		encrypt.put("keyId", new JSONArray().put(binWrapper));
 
@@ -58,13 +118,66 @@ public class FleApplication {
 
 		return encryptedFieldWrap;
 	}
-	public static String getSchemaJSON(String keyId){
-		JSONObject encryptedField = makeEncryptedFieldJSON(keyId);
 
+	public static JSONObject makeStandardFieldJSON(String chosenBsonType){
 		JSONObject standardField = new JSONObject();
+		standardField.put("bsonType", chosenBsonType);
+		standardField.put("description", "must be a " + chosenBsonType + " and is required");
+		return standardField;
+	}
+
+
+	public static String makeJSONSchema(String keyId){
+		// create fields
+		// make nested appts
+		JSONObject appointments = new JSONObject();
+
+			// appointments.bsonType:
+			appointments.put("bsonType", "array");
+
+			// appointments.items: 
+			// JSONArray required = new JSONArray();
+			// required.put("date");
+			// required.put("appointmentDescription");
+
+			JSONObject appointmentProperties = new JSONObject();
+			appointmentProperties.put("date", makeStandardFieldJSON("date"));
+			appointmentProperties.put("appointmentDescription",  makeStandardFieldJSON("string"));
+
+			JSONObject itemsSubObject = new JSONObject();
+			itemsSubObject.put("bsonType", "object");
+			// itemsSubObject.put("required", required);
+			itemsSubObject.put("properties", appointmentProperties);
+
+			appointments.put("items", itemsSubObject);
+
+
+		// put fields in properties
+		JSONObject properties = new JSONObject();
+		properties.put("fullName", makeStandardFieldJSON("string"));
+		properties.put("address", makeEncryptedFieldJSON(keyId, "string"));
+		properties.put("telephone", makeEncryptedFieldJSON(keyId, "int"));
+		properties.put("ssn", makeEncryptedFieldJSON(keyId, "int"));
+		properties.put("last4SSN", makeStandardFieldJSON("int"));
+		properties.put("appointments", appointments); 
+
+		// System.out.println(properties.toString());
+		// properties.put("standardField", standardField);
+		// properties.put("encryptedField", encryptedField);
+
+
+		JSONObject patientsSchema = new JSONObject();
+		patientsSchema.put("properties", properties);
+		patientsSchema.put("bsonType", "object");
+		String patientsSchemaAsString = patientsSchema.toString();
+		return patientsSchemaAsString;
+	}
+
+	public static String getSchemaJSON(String keyId){
+		JSONObject encryptedField = makeEncryptedFieldJSON(keyId, "string");
+		JSONObject standardField = makeStandardFieldJSON("string");
 		
-		standardField.put("bsonType", "string");
-		standardField.put("description", "must be a string and is required");
+
 
 		JSONObject properties = new JSONObject();
 		properties.put("standardField", standardField);
@@ -74,38 +187,8 @@ public class FleApplication {
 		JSONObject patientsSchema = new JSONObject();
 		patientsSchema.put("properties", properties);
 		patientsSchema.put("bsonType", "object");
-
 		String patientsSchemaAsString = patientsSchema.toString();
-
-		System.out.println(patientsSchemaAsString);
-
 		return patientsSchemaAsString;
-
-		// String jsonString = "{" +
-		// "        \"properties\": {" +
-		// "            \"standardField\": {" +
-		// "                \"bsonType\": \"string\"," +
-		// "				 \"description\": \"must be a string and is required\", " +
-		// "                }," +
-		// "            \"encryptedField\": {" +
-		// "                \"encrypt\": {" +
-		// "                    \"keyId\": [" +
-		// "                        {" +
-		// "                            \"$binary\": {" +
-		// "                                \"base64\": \"" + keyId + "\"," +
-		// "                                \"subType\": \"04\"" +
-		// "                            }" +
-		// "                        }" +
-		// "                    ]," +
-		// "                    \"bsonType\": \"string\"," +
-		// "                    \"algorithm\": \"AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic\"" +
-		// "                }" +
-		// "            }" +
-		// "        }," +
-		// "        \"bsonType\": \"object\"" +
-		// "    }";
-		// // System.out.println(jsonString);
-		// return jsonString;
 	}
 
 	public static MongoClient createSecureClient(){
@@ -140,7 +223,7 @@ public class FleApplication {
 						.schemaMap(
 								Map.of(dbName + "." + collName,
 										// Need a schema that references the new data key
-										BsonDocument.parse(getSchemaJSON(base64DataKeyId)))
+										BsonDocument.parse(makeJSONSchema(base64DataKeyId)))
 						)
 						.build();
 
