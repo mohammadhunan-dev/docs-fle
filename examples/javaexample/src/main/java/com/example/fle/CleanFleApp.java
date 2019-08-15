@@ -53,10 +53,6 @@ public class CleanFleApp {
 
         patientA.put("medicalRecords", medicalRecords);
         collection.insertOne(patientA);
-        
-
-
-
     }
     public static JSONObject getEncryptedField(String keyId, String chosenBsonType, Boolean isDeterministic){
         JSONObject binaryForKey = new JSONObject();
