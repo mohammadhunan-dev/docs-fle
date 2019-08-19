@@ -20,6 +20,7 @@
   "dependencies": {
     "cryptr": "^4.0.2",
     "faker": "^4.1.0",
-    "jsonschema": "^1.2.4"
+    "jsonschema": "^1.2.4",
+    "mgeneratejs": "^0.5.1"
   }
 }
