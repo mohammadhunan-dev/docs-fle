@@ -2,6 +2,7 @@ package com.example.fle;
 
 
 import com.mongodb.*;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -26,14 +27,44 @@ public class CleanFleApp {
     public static void main(String[] args) {
         MongoCollection secureCollection = createSecureClient().getDatabase(dbName).getCollection(collectionName);
         secureCollection.drop();
-        insertDocument(secureCollection);
-        getDocs(secureCollection);
+        // insertDocument(secureCollection);
+        // getDocs(secureCollection);
+        // getOnePatient(secureCollection);
+
+        Document filterDoc = new Document();
+        filterDoc.put("ssn",777331111);
+  
+        Document updateDoc = new Document();
+        updateDoc.append("$set", new Document("address","200 summerville terrace"));
+        updateOne(secureCollection, filterDoc, updateDoc);
     }
     public static void getDocs(MongoCollection collection){
         collection.find().forEach((Consumer<Document>) document -> {
 			System.out.println("   "+ document);
 		});
     }
+    public static void getOnePatient(MongoCollection collection) {
+        Document query = new Document();
+        query.put("ssn", 777331111);
+        // query.put("address", "300 golden road");        
+        Object ab = collection.find(query).first();
+        // System.out.println("--------");
+        // System.out.println(ab);
+        // System.out.println("--------");
+
+    }
+
+    public static void updateOne(MongoCollection collection, Document filterDoc, Document updateDoc) {
+       
+        collection.updateOne(filterDoc, updateDoc);
+
+        Object ab = collection.find(filterDoc).first();
+        // System.out.println("--------");
+        // System.out.println(ab);
+        // System.out.println("--------");
+    }
+
+
     public static void insertDocument(MongoCollection collection){
         Document patientA = new Document();
         patientA.put("address", "300 golden road");
@@ -85,8 +116,10 @@ public class CleanFleApp {
     public static String getJSONSchema(String keyId){
 
         JSONObject properties = new JSONObject();
-		properties.put("fullName", getStandardField("string"));
-		properties.put("address", getEncryptedField(keyId, "string", false));
+        properties.put("fullName", getStandardField("string"));
+        // System.out.println("original " + keyId);
+        // System.out.println("new " + makeKey());
+		properties.put("address", getEncryptedField(makeKey(), "string", false));
 		properties.put("ssn", getEncryptedField(keyId, "int", true));
         properties.put("last4SSN", getStandardField("int"));
         JSONObject patientInfo = new JSONObject();
@@ -105,9 +138,30 @@ public class CleanFleApp {
 		patientsSchema.put("properties", properties);
 		patientsSchema.put("bsonType", "object");
         String patientsSchemaAsString = patientsSchema.toString();
+        System.out.println(patientsSchemaAsString);
 		return patientsSchemaAsString;
     }
-    
+    public static String makeKey(){
+        var localMasterKey = Base64.getDecoder().decode("MHZsOF/POyDm24Jih9NF+30VcMAXx6YJv/urrVU2VoHtoH7FFXxia/RsEGx1nqc+m9vpoU/ov+AIJbaa9hRiZPQ+T0p8hN0mxBlBgyt74vFhCYyep3eqljh1yIsouBlC");
+
+		var kmsProviders = Map.of("local",
+				Map.<String, Object>of("key", localMasterKey));
+
+		var keyVaultNamespace = "admin.datakeys";
+
+
+		var keyVaultSettings = ClientEncryptionSettings.builder()
+				.keyVaultMongoClientSettings(MongoClientSettings.builder()
+				.build())
+				.keyVaultNamespace(keyVaultNamespace)
+				.kmsProviders(kmsProviders)
+				.build();
+
+		var keyVault = ClientEncryptions.create(keyVaultSettings);
+		var dataKeyId = keyVault.createDataKey("local", new DataKeyOptions());
+        var base64DataKeyId = Base64.getEncoder().encodeToString(dataKeyId.getData());
+        return base64DataKeyId;
+    }
     public static MongoClient createSecureClient(){
 		var localMasterKey = Base64.getDecoder().decode("MHZsOF/POyDm24Jih9NF+30VcMAXx6YJv/urrVU2VoHtoH7FFXxia/RsEGx1nqc+m9vpoU/ov+AIJbaa9hRiZPQ+T0p8hN0mxBlBgyt74vFhCYyep3eqljh1yIsouBlD");
 
@@ -127,7 +181,6 @@ public class CleanFleApp {
 		var keyVault = ClientEncryptions.create(keyVaultSettings);
 		var dataKeyId = keyVault.createDataKey("local", new DataKeyOptions());
 		var base64DataKeyId = Base64.getEncoder().encodeToString(dataKeyId.getData());
-
 		var autoEncryptionSettings =
 				AutoEncryptionSettings.builder()
 						.keyVaultNamespace(keyVaultNamespace)
