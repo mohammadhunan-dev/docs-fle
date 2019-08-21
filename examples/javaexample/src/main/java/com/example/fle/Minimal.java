@@ -9,7 +9,9 @@ import com.mongodb.client.model.vault.DataKeyOptions;
 import com.mongodb.client.vault.ClientEncryptions;
 
 import org.bson.BsonDocument;
+import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Map;
 
@@ -17,11 +19,29 @@ import org.json.*;
 
 public class Minimal {
     // this example is just for json schema doc
-    static String dbName = "fieldLevelEncryptionDemo001";
+    static String dbName = "fieldLevelEncryptionDemo002";
     static String collectionName = "patients";
     public static void main(String[] args) {
         MongoCollection secureCollection = createSecureClient().getDatabase(dbName).getCollection(collectionName);
+        insertDocument(secureCollection);
     }
+    public static void insertDocument(MongoCollection collection){
+        Document patientA = new Document();
+        patientA.put("name", "John Doe");
+        patientA.put("ssn",111111111);
+        patientA.put("bloodType", "a-");
+        Document medicalRecordOne = new Document();
+        medicalRecordOne.put("heartRate", 100);
+        ArrayList<Document> medicalRecords = new ArrayList<>();
+        medicalRecords.add(medicalRecordOne);
+        patientA.put("medicalRecords", medicalRecords);
+        Document insuranceInfo = new Document();
+        insuranceInfo.put("provider", "Octo Care");
+        insuranceInfo.put("policyNumber", 1313);
+        patientA.put("insurance",insuranceInfo);
+        collection.insertOne(patientA);
+    }
+
     public static JSONObject getEncryptedField(String keyId, String chosenBsonType, Boolean isDeterministic){
         JSONObject binaryForKey = new JSONObject();
         binaryForKey.put("base64", keyId);
@@ -50,27 +70,27 @@ public class Minimal {
     }
     public static String getJSONSchema(String keyId){
         JSONObject properties = new JSONObject();
-        properties.put("fullName", getStandardField("string"));
-        properties.put("address", getEncryptedField(keyId, "string", false));
-        properties.put("ssn", getEncryptedField(keyId, "int", true));
-        properties.put("last4SSN", getStandardField("int"));
-        JSONObject patientInfo = new JSONObject();
-        patientInfo.put("bsonType", "object");
-        JSONObject patientInfoProperties = new JSONObject();
-            patientInfoProperties.put("phone", getEncryptedField(keyId, "int", true));
-            patientInfoProperties.put("provider", getStandardField("string"));
-        patientInfo.put("properties", patientInfoProperties);
-        properties.put("patientInfo", patientInfo);
+        properties.put("name", getStandardField("string"));
+        properties.put("ssn", getEncryptedField(keyId, "int", true)); // determin
+        properties.put("bloodType", getEncryptedField(keyId, "string", false)); //random
+
+        JSONObject insurance = new JSONObject();
+        insurance.put("bsonType", "object");
+        JSONObject insuranceProperties = new JSONObject();
+            insuranceProperties.put("policyNumber", getEncryptedField(keyId, "int", true));
+            insuranceProperties.put("provider", getStandardField("string"));
+        insurance.put("properties", insuranceProperties);
+        properties.put("insurance", insurance);
 
         JSONObject medicalRecords = getEncryptedField(keyId, "array", false);
         properties.put("medicalRecords",medicalRecords);
 
-
-        JSONObject patientsSchema = new JSONObject();
-        patientsSchema.put("properties", properties);
-        patientsSchema.put("bsonType", "object");
+		JSONObject patientsSchema = new JSONObject();
+		patientsSchema.put("properties", properties);
+		patientsSchema.put("bsonType", "object");
         String patientsSchemaAsString = patientsSchema.toString();
-        return patientsSchemaAsString;
+        System.out.println(patientsSchemaAsString);
+		return patientsSchemaAsString;
     }
     public static MongoClient createSecureClient(){
 		var localMasterKey = Base64.getDecoder().decode("MHZsOF/POyDm24Jih9NF+30VcMAXx6YJv/urrVU2VoHtoH7FFXxia/RsEGx1nqc+m9vpoU/ov+AIJbaa9hRiZPQ+T0p8hN0mxBlBgyt74vFhCYyep3eqljh1yIsouBlD");

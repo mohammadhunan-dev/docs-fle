@@ -15,7 +15,9 @@ sourceCompatibility = '11'
 // mainClassName = 'com.example.demo.DemoApplication' 
 
 // mainClassName = 'com.example.fle.FleApplication' 
-mainClassName = 'com.example.fle.CleanFleApp' 
+// mainClassName = 'com.example.fle.CleanFleApp' 
+mainClassName = 'com.example.fle.Minimal' 
+
 repositories {
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 	mavenCentral()

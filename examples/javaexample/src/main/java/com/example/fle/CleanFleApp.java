@@ -63,8 +63,6 @@ public class CleanFleApp {
         // System.out.println(ab);
         // System.out.println("--------");
     }
-
-
     public static void insertDocument(MongoCollection collection){
         Document patientA = new Document();
         patientA.put("address", "300 golden road");
@@ -114,26 +112,22 @@ public class CleanFleApp {
 		return standardField;
     }
     public static String getJSONSchema(String keyId){
-
         JSONObject properties = new JSONObject();
-        properties.put("fullName", getStandardField("string"));
-        // System.out.println("original " + keyId);
-        // System.out.println("new " + makeKey());
-		properties.put("address", getEncryptedField(makeKey(), "string", false));
-		properties.put("ssn", getEncryptedField(keyId, "int", true));
-        properties.put("last4SSN", getStandardField("int"));
-        JSONObject patientInfo = new JSONObject();
-        patientInfo.put("bsonType", "object");
-        JSONObject patientInfoProperties = new JSONObject();
-            patientInfoProperties.put("phone", getEncryptedField(keyId, "int", true));
-            patientInfoProperties.put("provider", getStandardField("string"));
-        patientInfo.put("properties", patientInfoProperties);
-        properties.put("patientInfo", patientInfo);
+        properties.put("name", getStandardField("string"));
+        properties.put("ssn", getEncryptedField(keyId, "int", true)); // determin
+        properties.put("bloodType", getEncryptedField(keyId, "int", false)); //random
+
+        JSONObject insurance = new JSONObject();
+        insurance.put("bsonType", "object");
+        JSONObject insuranceProperties = new JSONObject();
+            insuranceProperties.put("policyNumber", getEncryptedField(keyId, "int", true));
+            insuranceProperties.put("provider", getStandardField("string"));
+        insurance.put("properties", insuranceProperties);
+        properties.put("insurance", insurance);
 
         JSONObject medicalRecords = getEncryptedField(keyId, "array", false);
         properties.put("medicalRecords",medicalRecords);
 
-        
 		JSONObject patientsSchema = new JSONObject();
 		patientsSchema.put("properties", properties);
 		patientsSchema.put("bsonType", "object");
